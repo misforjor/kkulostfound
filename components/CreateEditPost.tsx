@@ -9,10 +9,12 @@ import type {
   Post,
   PostType,
   PostStatus,
+  PostCategory,
 } from '../types';
 import {
   LOCATIONS,
   STATUS_BY_TYPE,
+  CATEGORIES,
 } from '../types';
 
 export default function CreateEditPost({
@@ -36,6 +38,11 @@ export default function CreateEditPost({
 
   const [type, setType] =
     useState<PostType>('ตามหา');
+
+  // ประเภทสิ่งของ
+  // ค่าเริ่มต้นเป็น "อื่น ๆ"
+  const [category, setCategory] =
+    useState<PostCategory>('อื่น ๆ');
 
   const [title, setTitle] =
     useState('');
@@ -96,15 +103,21 @@ export default function CreateEditPost({
         setExisting(post);
 
         setType(post.type);
+
+        // โพสต์เก่าที่อาจยังไม่มี category
+        // ให้ใช้ "อื่น ๆ"
+        setCategory(post.category || 'อื่น ๆ');
+
         setTitle(post.title);
         setDescription(post.description);
         setLocation(post.location);
         setImageUrl(post.imageUrl || '');
+
         setContactInfo(
           post.contactInfo || ''
         );
-        setStatus(post.status);
 
+        setStatus(post.status);
       } catch (err) {
         console.error(
           'โหลดโพสต์ไม่สำเร็จ:',
@@ -133,7 +146,6 @@ export default function CreateEditPost({
   if (!currentUser) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-
         <p className="text-xl font-semibold text-gray-700 mb-4">
           กรุณาเข้าสู่ระบบเพื่อสร้างโพสต์
         </p>
@@ -149,7 +161,6 @@ export default function CreateEditPost({
         >
           เข้าสู่ระบบ
         </button>
-
       </div>
     );
   }
@@ -167,7 +178,6 @@ export default function CreateEditPost({
   if (isEdit && !existing) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-
         <p className="text-5xl mb-4">
           😕
         </p>
@@ -186,7 +196,6 @@ export default function CreateEditPost({
         >
           กลับไปโพสต์ของฉัน
         </button>
-
       </div>
     );
   }
@@ -253,12 +262,12 @@ export default function CreateEditPost({
 
     try {
       if (isEdit && existing) {
-
         const updated =
           await updatePost(
             existing.id,
             {
               type,
+              category,
               title: title.trim(),
               description:
                 description.trim(),
@@ -283,13 +292,12 @@ export default function CreateEditPost({
           name: 'post-detail',
           postId: updated.id,
         });
-
       } else {
-
         const newPost =
           await createPost({
             userId: currentUser.id,
             type,
+            category,
             title: title.trim(),
             description:
               description.trim(),
@@ -312,7 +320,6 @@ export default function CreateEditPost({
           postId: newPost.id,
         });
       }
-
     } catch (err) {
       console.error(
         'บันทึกโพสต์ไม่สำเร็จ:',
@@ -350,7 +357,6 @@ export default function CreateEditPost({
         }
         className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 transition-colors mb-6"
       >
-
         <svg
           className="w-4 h-4"
           fill="none"
@@ -368,7 +374,6 @@ export default function CreateEditPost({
         {isEdit
           ? 'กลับไปยังโพสต์'
           : 'กลับไปยังโพสต์ทั้งหมด'}
-
       </button>
 
       <h1
@@ -399,17 +404,14 @@ export default function CreateEditPost({
         {/* ประเภทโพสต์ */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-3">
             ประเภทโพสต์ *
           </label>
 
           <div className="grid grid-cols-2 gap-3">
-
             {(
               ['ตามหา', 'พบของหาย'] as PostType[]
             ).map(postType => (
-
               <button
                 key={postType}
                 type="button"
@@ -430,17 +432,40 @@ export default function CreateEditPost({
                   ? '🔴 ตามหาของหาย'
                   : '🟢 พบของหาย'}
               </button>
-
             ))}
-
           </div>
+        </div>
 
+        {/* ประเภทสิ่งของ */}
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+            ประเภทสิ่งของ *
+          </label>
+
+          <select
+            value={category}
+            onChange={e =>
+              setCategory(
+                e.target.value as PostCategory
+              )
+            }
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 focus:border-[#1E293B] transition-all cursor-pointer"
+          >
+            {CATEGORIES.map(item => (
+              <option
+                key={item}
+                value={item}
+              >
+                {item}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* หัวเรื่อง */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">
             หัวเรื่อง *
           </label>
@@ -456,13 +481,11 @@ export default function CreateEditPost({
             maxLength={100}
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 focus:border-[#1E293B] transition-all"
           />
-
         </div>
 
         {/* รายละเอียด */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">
             รายละเอียด *
           </label>
@@ -479,13 +502,11 @@ export default function CreateEditPost({
             rows={4}
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 focus:border-[#1E293B] transition-all resize-none"
           />
-
         </div>
 
         {/* สถานที่ */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">
             สถานที่ *
           </label>
@@ -499,7 +520,6 @@ export default function CreateEditPost({
             }
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 cursor-pointer"
           >
-
             {LOCATIONS.map(loc => (
               <option
                 key={loc}
@@ -508,17 +528,13 @@ export default function CreateEditPost({
                 {loc}
               </option>
             ))}
-
           </select>
-
         </div>
 
         {/* สถานะ */}
 
         {isEdit && (
-
           <div>
-
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">
               สถานะ
             </label>
@@ -532,7 +548,6 @@ export default function CreateEditPost({
               }
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 cursor-pointer"
             >
-
               {availableStatuses.map(
                 availableStatus => (
                   <option
@@ -543,23 +558,18 @@ export default function CreateEditPost({
                   </option>
                 )
               )}
-
             </select>
-
           </div>
-
         )}
 
         {/* รูปภาพ */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-3">
             รูปภาพ (ไม่บังคับ)
           </label>
 
           <div className="flex gap-2 mb-3">
-
             <button
               type="button"
               onClick={() =>
@@ -587,11 +597,9 @@ export default function CreateEditPost({
             >
               อัปโหลดไฟล์
             </button>
-
           </div>
 
           {imageMode === 'url' ? (
-
             <input
               type="url"
               value={imageUrl}
@@ -603,9 +611,7 @@ export default function CreateEditPost({
               placeholder="https://..."
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 transition-all"
             />
-
           ) : (
-
             <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-colors bg-gray-50">
 
               <svg
@@ -632,15 +638,11 @@ export default function CreateEditPost({
                 className="hidden"
                 onChange={handleImageFile}
               />
-
             </label>
-
           )}
 
           {imageUrl && (
-
             <div className="mt-3 relative inline-block">
-
               <img
                 src={imageUrl}
                 alt="ตัวอย่าง"
@@ -656,17 +658,13 @@ export default function CreateEditPost({
               >
                 ×
               </button>
-
             </div>
-
           )}
-
         </div>
 
         {/* ข้อมูลติดต่อ */}
 
         <div>
-
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">
             ข้อมูลติดต่อ (ไม่บังคับ)
           </label>
@@ -682,13 +680,11 @@ export default function CreateEditPost({
             placeholder="อีเมล เบอร์โทร หรือช่องทางติดต่ออื่น ๆ"
             className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#1E293B]/20 focus:border-[#1E293B] transition-all"
           />
-
         </div>
 
         {/* ปุ่ม */}
 
         <div className="flex gap-3 pt-2">
-
           <button
             type="submit"
             disabled={
@@ -723,11 +719,9 @@ export default function CreateEditPost({
           >
             ยกเลิก
           </button>
-
         </div>
 
       </form>
-
     </div>
   );
 }
