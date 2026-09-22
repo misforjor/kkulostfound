@@ -136,6 +136,7 @@ function mapPost(row: any): Post {
     id: row.id,
     userId: row.user_id,
     type: row.type,
+    category: row.category || 'อื่น ๆ',
     title: row.title,
     description: row.description,
     location: row.location,
@@ -194,6 +195,7 @@ export async function createPost(
     .insert({
       user_id: post.userId,
       type: post.type,
+      category: post.category,
       title: post.title,
       description: post.description,
       location: post.location,
@@ -217,20 +219,34 @@ export async function updatePost(
 ): Promise<Post> {
   const dataToUpdate: Record<string, any> = {};
 
-  if (updates.type !== undefined) dataToUpdate.type = updates.type;
-  if (updates.title !== undefined) dataToUpdate.title = updates.title;
+  if (updates.type !== undefined) {
+    dataToUpdate.type = updates.type;
+  }
+
+  if (updates.category !== undefined) {
+    dataToUpdate.category = updates.category;
+  }
+
+  if (updates.title !== undefined) {
+    dataToUpdate.title = updates.title;
+  }
+
   if (updates.description !== undefined) {
     dataToUpdate.description = updates.description;
   }
+
   if (updates.location !== undefined) {
     dataToUpdate.location = updates.location;
   }
+
   if (updates.imageUrl !== undefined) {
     dataToUpdate.image_url = updates.imageUrl || null;
   }
+
   if (updates.status !== undefined) {
     dataToUpdate.status = updates.status;
   }
+
   if (updates.contactInfo !== undefined) {
     dataToUpdate.contact_info = updates.contactInfo || null;
   }
