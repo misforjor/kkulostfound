@@ -1,5 +1,26 @@
 export type PostType = 'ตามหา' | 'พบของหาย';
-export type PostStatus = 'กำลังตามหาสิ่งของ' | 'พบของแล้ว' | 'กำลังตามหาเจ้าของ' | 'ส่งคืนแล้ว';
+
+export type PostStatus =
+  | 'กำลังตามหาสิ่งของ'
+  | 'พบของแล้ว'
+  | 'กำลังตามหาเจ้าของ'
+  | 'ส่งคืนแล้ว';
+
+export const CATEGORIES = [
+  'สัตว์เลี้ยง',
+  'อาหารและเครื่องดื่ม',
+  'เสื้อผ้า',
+  'อุปกรณ์อิเล็กทรอนิกส์',
+  'เครื่องสำอาง',
+  'เครื่องประดับ',
+  'เครื่องเขียน',
+  'อะไหล่รถ',
+  'ของใช้ทั่วไป',
+  'เอกสารและบัตรสำคัญ',
+  'อื่น ๆ',
+] as const;
+
+export type PostCategory = typeof CATEGORIES[number];
 
 export interface User {
   id: string;
@@ -14,6 +35,7 @@ export interface Post {
   id: string;
   userId: string;
   type: PostType;
+  category: PostCategory;
   title: string;
   description: string;
   location: string;
@@ -33,7 +55,14 @@ export interface Comment {
   updatedAt: string;
 }
 
-export type ViewName = 'home' | 'post-detail' | 'create-post' | 'edit-post' | 'auth' | 'profile' | 'my-posts';
+export type ViewName =
+  | 'home'
+  | 'post-detail'
+  | 'create-post'
+  | 'edit-post'
+  | 'auth'
+  | 'profile'
+  | 'my-posts';
 
 export interface AppView {
   name: ViewName;
