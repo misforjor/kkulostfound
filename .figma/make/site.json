@@ -1,0 +1,10 @@
+{
+  "description": "Connect with your community to report and recover lost items through a user-friendly platform that enables posting, searching, and commenting.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
